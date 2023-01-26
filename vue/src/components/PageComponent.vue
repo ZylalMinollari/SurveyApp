@@ -4,6 +4,7 @@
       <h1 class="text-3xl font-bold text-gray-900">
         {{ title }}
       </h1>
+      <slot name="header"></slot>
     </div>
   </header>
   <main>
