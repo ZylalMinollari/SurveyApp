@@ -1,44 +1,176 @@
 import {createStore} from "vuex";
 import axiosClient from "../axios";
 
+const tmpSurveys = [
+  {
+    id: 1,
+    title: "Laravel 8",
+    slug: "laravel-8",
+    status: "draft",
+    image: "https://www.giantbomb.com/a/uploads/square_medium/1/19745/889857-the_last_doujutsu___itachi_by_kuja_trance.png",
+    description: "Laravel is a web application framework with expressive",
+    created_at: "2021-12-20 18:00:00",
+    updated_at: "2021-12-20 18:00:00",
+    expire_date: "2021-12-31 18:00:00",
+    questions: [
+      {
+        id: 1,
+        type: "select",
+        question: "Favourite framework ?",
+        description : null,
+        data: {
+          options: [
+            {
+              uuid: "ecc34c24-0eaf-4628-9146-c057c1a3ddfb", text: "Laravel"
+            },
+            {
+              uuid: "82a41572-4525-4d6d-8729-62121df69da6", text: "Node"
+            },
+            {
+              uuid: "b604bdc7-cbf6-4f23-8041-6666f323e881", text: "django"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    id: 5,
+    title: "Vue",
+    slug: "vue",
+    status: "draft",
+    image: "https://www.giantbomb.com/a/uploads/square_medium/1/19558/896503-7261_itachi004_super.jpg",
+    description: "Laravel is a web application framework with expressive,",
+    created_at: "2021-12-20 18:00:00",
+    updated_at: "2021-12-20 18:00:00",
+    expire_date: "2021-12-31 18:00:00",
+    questions: [
+      {
+        id: 2,
+        type: "checkbox",
+        question: "Favourite framework ?",
+        description : null,
+        data: {
+          options: [
+            {
+              uuid: "ecc34c24-0eaf-4628-9146-c057c1a3ddfb", text: "Javascript"
+            },
+            {
+              uuid: "82a41572-4525-4d6d-8729-62121df69da6", text: "Node"
+            },
+            {
+              uuid: "b604bdc7-cbf6-4f23-8041-6666f323e881", text: "django"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    id: 1,
+    title: "Vue",
+    slug: "vue",
+    status: "draft",
+    image: "https://www.giantbomb.com/a/uploads/square_medium/1/19745/889825-itachi___represent_by_h0shii.jpg",
+    description: "Laravel is a web application framework with expressive,",
+    created_at: "2021-12-20 18:00:00",
+    updated_at: "2021-12-20 18:00:00",
+    expire_date: "2021-12-31 18:00:00",
+    questions: [
+      {
+        id: 3,
+        type: "radio",
+        question: "Favourite framework ?",
+        description : null,
+        data: {
+          options: [
+            {
+              uuid: "ecc34c24-0eaf-4628-9146-c057c1a3ddfb", text: "Javascript"
+            },
+            {
+              uuid: "82a41572-4525-4d6d-8729-62121df69da6", text: "Node"
+            },
+            {
+              uuid: "b604bdc7-cbf6-4f23-8041-6666f323e881", text: "django"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    id: 1,
+    title: "Vue",
+    slug: "vue",
+    status: "draft",
+    image: "",
+    description: "Laravel is a web application framework with expressive,",
+    created_at: "2021-12-20 18:00:00",
+    updated_at: "2021-12-20 18:00:00",
+    expire_date: "2021-12-31 18:00:00",
+    questions: [
+      {
+        id: 3,
+        type: "radio",
+        question: "Favourite framework ?",
+        description : null,
+        data: {
+          options: [
+            {
+              uuid: "ecc34c24-0eaf-4628-9146-c057c1a3ddfb", text: "Javascript"
+            },
+            {
+              uuid: "82a41572-4525-4d6d-8729-62121df69da6", text: "Node"
+            },
+            {
+              uuid: "b604bdc7-cbf6-4f23-8041-6666f323e881", text: "django"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    id: 1,
+    title: "Vue",
+    slug: "vue",
+    status: "draft",
+    image: "",
+    description: "Laravel is a web application framework with expressive,",
+    created_at: "2021-12-20 18:00:00",
+    updated_at: "2021-12-20 18:00:00",
+    expire_date: "2021-12-31 18:00:00",
+    questions: [
+      {
+        id: 3,
+        type: "radio",
+        question: "Favourite framework ?",
+        description : null,
+        data: {
+          options: [
+            {
+              uuid: "ecc34c24-0eaf-4628-9146-c057c1a3ddfb", text: "Javascript"
+            },
+            {
+              uuid: "82a41572-4525-4d6d-8729-62121df69da6", text: "Node"
+            },
+            {
+              uuid: "b604bdc7-cbf6-4f23-8041-6666f323e881", text: "django"
+            }
+          ]
+        }
+      }
+    ]
+  }
+
+]
 const store = createStore({
   state: {
     user: {
       data: {},
       token: sessionStorage.getItem('TOKEN'),
     },
-    surveys: [
-      {
-        id: 1,
-        title: "Laravel 8",
-        slug: "laravel-8",
-        status: "draft",
-        description: `Laravel is a web application framework with expressive, elegant syntax. We’ve already laid the foundation — freeing you to create without sweating the small things.`,
-        created_at: "2021-12-20 18:00:00",
-        updated_at: "2021-12-20 18:00:00",
-        expire_date: "2021-12-31 18:00:00",
-      },
-      {
-        id: 2,
-        title: "Vue 3",
-        slug: "vue-3",
-        status: "active",
-        description: `Vue (pronounced /vjuː/, like view) is a progressive framework for building user interfaces. Unlike other monolithic frameworks, Vue is designed from the ground up to be incrementally adoptable.`,
-        created_at: "2021-12-21 17:00:00",
-        updated_at: "2021-12-21 17:00:00",
-        expire_date: "2021-12-31 00:00:00",
-      },
-      {
-        id: 3,
-        title: "Tailwind 3",
-        slug: "tailwind-3",
-        status: "active",
-        description: `A utility-first CSS framework packed with classes like <code>flex</code>, <code>pt-4</code>, <code>text-center</code> and <code>rotate-90</code> that can be composed to build any design, directly in your markup.`,
-        created_at: "2021-12-21 14:00:00",
-        updated_at: "2021-12-21 14:00:00",
-        expire_date: "2021-12-31 00:00:00",
-      },
-    ],
+    surveys: [...tmpSurveys],
   },
   getters: {},
   actions: {
