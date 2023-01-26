@@ -107,21 +107,13 @@
             <div v-if="!model.questions.length" class="text-center text-gray-600">
               You dont have questions
             </div>
-            <div v-for="(question,index) in model.questions" :key="question.id">
-                <QuestionEditor
-                :question="question"
-                :index="index"
-                @onchange="questionChange"
-                @addQuestion="addQuestion"
-                @deleteQuestion="deleteQuestion"/>
-
-
+            <div v-for="(question, index) in model.questions" :key="question.id">
+              <QuestionEditor :question="question" :index="index" @onchange="questionChange" @addQuestion="addQuestion"
+                @deleteQuestion="deleteQuestion" />
             </div>
 
             <div class="px-4 py-3 bg-gray-50 text-right sm:px-6">
-              <button
-                type="submit"
-                class="
+              <button type="submit" class="
                   inline-flex
                   justify-center
                   py-2
@@ -138,8 +130,7 @@
                   focus:ring-2
                   focus:ring-offset-2
                   focus:ring-indigo-500
-                "
-              >
+                ">
                 Save
               </button>
             </div>
@@ -152,11 +143,13 @@
 </template>
 
 <script setup>
+import { v4 as uuidv4 } from "uuid";
 import { computed } from "vue";
 import { ref } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import store from "../store";
 import PageComponent from "../components/PageComponent.vue";
+import QuestionEditor from "../components/editor/QuestionEditor.vue";
 
 const router = useRouter();
 const route = useRoute();
@@ -180,6 +173,31 @@ if (route.params.id) {
 const survey = computed(() =>
   store.state.surveys.find((s) => s.id === parseInt(route.params.id))
 );
+
+function addQuestion(index) {
+  const newQuestion = {
+    id: uuidv4(),
+    title: "text",
+    question: "",
+    description: null,
+    data: {}
+  };
+
+  model.value.questions.splice(index, 0, newQuestion);
+}
+
+function deleteQuestion(question) {
+  model.value.questions = model.value.questions.filter((q) => q !== question);
+}
+
+function questionChange(question) {
+  model.value.questions = model.value.questions.map((q) => {
+    if (q.id === question.id) {
+      return JSON.parse(JSON.stringify(question));
+    }
+    return q;
+  })
+}
 </script>
 
 <style>
