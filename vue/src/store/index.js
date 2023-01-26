@@ -31,7 +31,26 @@ const tmpSurveys = [
             }
           ]
         }
-      }
+      },
+      {
+        id: 2,
+        type: "select",
+        question: "Favourite Language ?",
+        description : null,
+        data: {
+          options: [
+            {
+              uuid: "ecc34c24-0eaf-4628-9146-c057c1a3ddfb", text: "Laravel"
+            },
+            {
+              uuid: "82a41572-4525-4d6d-8729-62121df69da6", text: "Node"
+            },
+            {
+              uuid: "b604bdc7-cbf6-4f23-8041-6666f323e881", text: "django"
+            }
+          ]
+        }
+      },
     ]
   },
   {
@@ -99,7 +118,7 @@ const tmpSurveys = [
     ]
   },
   {
-    id: 1,
+    id: 4,
     title: "Vue",
     slug: "vue",
     status: "draft",
@@ -131,7 +150,7 @@ const tmpSurveys = [
     ]
   },
   {
-    id: 1,
+    id: 7,
     title: "Vue",
     slug: "vue",
     status: "draft",
@@ -171,6 +190,7 @@ const store = createStore({
       token: sessionStorage.getItem('TOKEN'),
     },
     surveys: [...tmpSurveys],
+    questionTypes: ["text","select","radio","checkbox","textarea"],
   },
   getters: {},
   actions: {
