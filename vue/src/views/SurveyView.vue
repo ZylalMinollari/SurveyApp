@@ -198,6 +198,17 @@ function questionChange(question) {
     return q;
   })
 }
+
+function saveSurvey() {
+  store.dispatch("saveSurvey", model.value).then(({ data }) => {
+    router.push({
+      name: "SurveyView",
+      params: { id: data.data.id }
+    });
+  })
+}
+
+
 </script>
 
 <style>
