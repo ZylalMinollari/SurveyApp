@@ -237,6 +237,10 @@ const store = createStore({
       }
       return response;
     },
+
+    deleteSurvey({ }, id) {
+      return axiosClient.delete(`/survey/${id}`);
+    },
     getSurvey({commit},id) {
       commit("setCurrentSurveyLoading", true);
       return axiosClient
