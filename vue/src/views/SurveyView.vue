@@ -5,14 +5,14 @@
         <h1 class="text-3xl font-bold text-gray-900">{{ model.id ? model.title : "Create Survey" }}</h1>
       </div>
     </template>
-    <!-- <pre>{{model}}</pre> -->
+    <!-- <div v-if="surveyLoading" class="flex justify-center">Loading...</div> -->
     <form @submit.prevent="saveSurvey">
       <div class="shadow sm:rounded-md sm:overflow-hidden">
         <div class="px-4 py-5  bg-white space-y-6 sm:p-6">
           <div>
             <label class="block text-sm font-medium text-gray-700">Image</label>
             <div class="mt-1 flex item-center">
-              <img v-if="model.image" :src="model.image" :alt="model.title" class="w-64 h-48 object-cover" />
+              <img v-if="model.image_url" :src="model.image_url" :alt="model.title" class="w-64 h-48 object-cover" />
               <span v-else class="
               flex
               items-center
@@ -47,7 +47,7 @@
               focus:ring-2
               focus:ring-offset-2
               focus:ring-indigo-500">
-                <input type="file" class="absolute left-0 right-0 bottom-0 opacity-0 cursor-pointer" />
+                <input type="file" @change="onImageChoose" class="absolute left-0 top-0 right-0 bottom-0 opacity-0 cursor-pointer" />
                 Change
               </button>
             </div>
@@ -145,7 +145,7 @@
 <script setup>
 import { v4 as uuidv4 } from "uuid";
 import { computed } from "vue";
-import { ref } from "vue";
+import { ref,watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import store from "../store";
 import PageComponent from "../components/PageComponent.vue";
@@ -159,16 +159,27 @@ let model = ref({
   status: false,
   description: null,
   image: null,
+  image_url: null,
   expire_date: null,
   questions: [],
 
 });
 
+const surveyLoading = computed(() => store.state.currentSurvey.loading);
+
 if (route.params.id) {
-  model.value = store.state.surveys.find(
-    (s) => s.id === parseInt(route.params.id)
-  )
+  store.dispatch('getSurvey', route.params.id);
 }
+
+watch(
+  () => store.state.currentSurvey.data,
+  (newVal, oldVal) => {
+    model.value = {
+      ...JSON.parse(JSON.stringify(newVal)),
+      status: newVal.status !== 'draft',
+    };
+  }
+);
 
 const survey = computed(() =>
   store.state.surveys.find((s) => s.id === parseInt(route.params.id))
@@ -197,6 +208,17 @@ function questionChange(question) {
     }
     return q;
   })
+}
+
+function onImageChoose(ev) {
+  const file = ev.target.files[0];
+  const reader = new FileReader();
+  reader.onload = () => {
+    model.value.image = reader.result;
+    model.value.image_url = reader.result;
+    ev.target.value = "";
+  };
+  reader.readAsDataURL(file);
 }
 
 function saveSurvey() {

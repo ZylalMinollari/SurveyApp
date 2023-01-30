@@ -3,7 +3,7 @@ import axiosClient from "../axios";
 
 const tmpSurveys = [
   {
-    id: 1,
+    id: 100,
     title: "Laravel 8",
     slug: "laravel-8",
     status: "draft",
@@ -14,7 +14,7 @@ const tmpSurveys = [
     expire_date: "2021-12-31 18:00:00",
     questions: [
       {
-        id: 1,
+        id: 101,
         type: "select",
         question: "Favourite framework ?",
         description : null,
@@ -33,7 +33,7 @@ const tmpSurveys = [
         }
       },
       {
-        id: 2,
+        id: 102,
         type: "select",
         question: "Favourite Language ?",
         description : null,
@@ -54,7 +54,7 @@ const tmpSurveys = [
     ]
   },
   {
-    id: 5,
+    id: 103,
     title: "Vue",
     slug: "vue",
     status: "draft",
@@ -65,7 +65,7 @@ const tmpSurveys = [
     expire_date: "2021-12-31 18:00:00",
     questions: [
       {
-        id: 2,
+        id: 104,
         type: "checkbox",
         question: "Favourite framework ?",
         description : null,
@@ -86,7 +86,7 @@ const tmpSurveys = [
     ]
   },
   {
-    id: 1,
+    id: 105,
     title: "Vue",
     slug: "vue",
     status: "draft",
@@ -97,7 +97,7 @@ const tmpSurveys = [
     expire_date: "2021-12-31 18:00:00",
     questions: [
       {
-        id: 3,
+        id: 106,
         type: "radio",
         question: "Favourite framework ?",
         description : null,
@@ -118,7 +118,7 @@ const tmpSurveys = [
     ]
   },
   {
-    id: 4,
+    id: 107,
     title: "Vue",
     slug: "vue",
     status: "draft",
@@ -129,7 +129,7 @@ const tmpSurveys = [
     expire_date: "2021-12-31 18:00:00",
     questions: [
       {
-        id: 3,
+        id: 108,
         type: "radio",
         question: "Favourite framework ?",
         description : null,
@@ -150,7 +150,7 @@ const tmpSurveys = [
     ]
   },
   {
-    id: 7,
+    id: 109,
     title: "Vue",
     slug: "vue",
     status: "draft",
@@ -161,7 +161,7 @@ const tmpSurveys = [
     expire_date: "2021-12-31 18:00:00",
     questions: [
       {
-        id: 3,
+        id: 110,
         type: "radio",
         question: "Favourite framework ?",
         description : null,
@@ -188,6 +188,10 @@ const store = createStore({
     user: {
       data: {},
       token: sessionStorage.getItem('TOKEN'),
+    },
+    currentSurvey: {
+      data: {},
+      loading: false,
     },
     surveys: [...tmpSurveys],
     questionTypes: ["text","select","radio","checkbox","textarea"],
@@ -218,19 +222,34 @@ const store = createStore({
     },
 
     saveSurvey({commit},survey) {
+      delete survey.image_url
       let response;
       if(survey.id) {
         response = axiosClient.put(`/survey/${survey.id}`,survey)
         .then((res)=> {
-          commit("updateSurvey", res.data);
+          commit("setCurrentSurvey", res.data);
           return res;
         });
       } else {
           response = axiosClient.post("/survey",survey).then((res)=>{
-            commit("saveSurvey",res.data)
+            commit("setCurrentSurvey",res.data)
           });
       }
       return response;
+    },
+    getSurvey({commit},id) {
+      commit("setCurrentSurveyLoading", true);
+      return axiosClient
+        .get(`/survey/${id}`)
+        .then((res) => {
+          commit("setCurrentSurvey", res.data);
+          commit("setCurrentSurveyLoading", false);
+          return res;
+        })
+        .catch((err) => {
+          commit("setCurrentSurveyLoading", false);
+          throw err;
+        });
     }
   },
   mutations: {
@@ -244,16 +263,23 @@ const store = createStore({
       state.user.data = userData.user;
       sessionStorage.setItem('TOKEN', userData.token);
     },
-    saveSurvey: (state,survey) => {
-        state.surveys = [...state.surveys,survey.data];
+    // saveSurvey: (state,survey) => {
+    //     state.surveys = [...state.surveys,survey.data];
+    // },
+    // updateSurvey: (state,survey) => {
+    //   state.surveys =  state.surveys.map((s) => {
+    //     if(s.id == survey.data.id) {
+    //       return survey.data;
+    //     }
+    //     return s;
+    //   });
+    // },
+
+    setCurrentSurveyLoading: (state, loading) => {
+      state.currentSurvey.loading = loading;
     },
-    updateSurvey: (state,survey) => {
-      state.surveys =  state.surveys.map((s) => {
-        if(s.id == survey.data.id) {
-          return survey.data;
-        }
-        return s;
-      });
+    setCurrentSurvey: (state, survey) => {
+      state.currentSurvey.data = survey.data;
     },
   },
   modules: {},
