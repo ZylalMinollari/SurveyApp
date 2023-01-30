@@ -3,16 +3,26 @@
     <template v-slot:header>
       <div class="flex justify-between items-center">
         <h1 class="text-3xl font-bold text-gray-900">{{ model.id ? model.title : "Create Survey" }}</h1>
+        <button v-if="route.params.id"
+        type="button"
+        @click="deleteSurvey()"
+        class="py-2 px-3 text-white bg-red-500 rounded-md hover:bg-red-600"
+        >
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 -mt-1 inline-block">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+        </svg>
+          Delete
+        </button>
       </div>
     </template>
-    <!-- <pre>{{model}}</pre> -->
+    <!-- <div v-if="surveyLoading" class="flex justify-center">Loading...</div> -->
     <form @submit.prevent="saveSurvey">
       <div class="shadow sm:rounded-md sm:overflow-hidden">
         <div class="px-4 py-5  bg-white space-y-6 sm:p-6">
           <div>
             <label class="block text-sm font-medium text-gray-700">Image</label>
             <div class="mt-1 flex item-center">
-              <img v-if="model.image" :src="model.image" :alt="model.title" class="w-64 h-48 object-cover" />
+              <img v-if="model.image_url" :src="model.image_url" :alt="model.title" class="w-64 h-48 object-cover" />
               <span v-else class="
               flex
               items-center
@@ -47,7 +57,7 @@
               focus:ring-2
               focus:ring-offset-2
               focus:ring-indigo-500">
-                <input type="file" class="absolute left-0 right-0 bottom-0 opacity-0 cursor-pointer" />
+                <input type="file" @change="onImageChoose" class="absolute left-0 top-0 right-0 bottom-0 opacity-0 cursor-pointer" />
                 Change
               </button>
             </div>
@@ -145,7 +155,7 @@
 <script setup>
 import { v4 as uuidv4 } from "uuid";
 import { computed } from "vue";
-import { ref } from "vue";
+import { ref,watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import store from "../store";
 import PageComponent from "../components/PageComponent.vue";
@@ -159,16 +169,27 @@ let model = ref({
   status: false,
   description: null,
   image: null,
+  image_url: null,
   expire_date: null,
   questions: [],
 
 });
 
+const surveyLoading = computed(() => store.state.currentSurvey.loading);
+
 if (route.params.id) {
-  model.value = store.state.surveys.find(
-    (s) => s.id === parseInt(route.params.id)
-  )
+  store.dispatch('getSurvey', route.params.id);
 }
+
+watch(
+  () => store.state.currentSurvey.data,
+  (newVal, oldVal) => {
+    model.value = {
+      ...JSON.parse(JSON.stringify(newVal)),
+      status: newVal.status !== 'draft',
+    };
+  }
+);
 
 const survey = computed(() =>
   store.state.surveys.find((s) => s.id === parseInt(route.params.id))
@@ -199,6 +220,17 @@ function questionChange(question) {
   })
 }
 
+function onImageChoose(ev) {
+  const file = ev.target.files[0];
+  const reader = new FileReader();
+  reader.onload = () => {
+    model.value.image = reader.result;
+    model.value.image_url = reader.result;
+    ev.target.value = "";
+  };
+  reader.readAsDataURL(file);
+}
+
 function saveSurvey() {
   store.dispatch("saveSurvey", model.value).then(({ data }) => {
     router.push({
@@ -206,6 +238,20 @@ function saveSurvey() {
       params: { id: data.data.id }
     });
   })
+}
+
+function deleteSurvey() {
+  if (
+    confirm(
+      `Are you sure you want to delete this survey? Operation can't be undone!!`
+    )
+  ) {
+    store.dispatch("deleteSurvey", model.value.id).then(() => {
+      router.push({
+        name: "Surveys",
+      });
+    });
+  }
 }
 
 
