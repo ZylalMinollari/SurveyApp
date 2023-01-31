@@ -20,6 +20,7 @@
         </router-link>
       </div>
     </template>
+
     <div v-if="surveys.loading" class="flex justify-center">Loading...</div>
     <div v-else-if="surveys.data.length">
       <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
@@ -54,6 +55,9 @@
         </a>
         </nav>
       </div>
+
+    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
+      <SurveyListItem v-for="survey in surveys" :key="survey.id" :survey="survey" @delete="deleteSurvey(survey)" />
     </div>
   </PageComponent>
 </template>
@@ -64,7 +68,7 @@ import { computed } from "vue";
 import PageComponent from "../components/PageComponent.vue";
 import SurveyListItem from "../components/SurveyListItem.vue";
 
-const surveys = computed(() => store.state.surveys);
+const surveys = computed(() => store.state.surveys.data);
 
 store.dispatch("getSurveys");
 function deleteSurvey(survey) {
@@ -76,12 +80,5 @@ function deleteSurvey(survey) {
   }
 }
 
-function getForPage(ev, link) {
-  ev.preventDefault();
-  if (!link.url || link.active) {
-    return;
-  }
-  store.dispatch("getSurveys", { url: link.url });
-}
 
 </script>
