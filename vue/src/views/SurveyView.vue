@@ -166,6 +166,7 @@ const route = useRoute();
 
 let model = ref({
   title: "",
+  slug: "",
   status: false,
   description: null,
   image: null,
