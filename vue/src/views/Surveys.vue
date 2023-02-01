@@ -20,15 +20,15 @@
         </router-link>
       </div>
     </template>
-
-    <div v-if="surveys.loading" class="flex justify-center">Loading...</div>
-    <div v-else-if="surveys.data.length">
+     <!-- Fix this bug -->
+    <!-- <div v-if="surveys.loading" class="flex justify-center">Loading...</div> -->
+    <!-- <div v-else-if="surveys.data.length"> -->
       <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
         <SurveyListItem v-for="(survey,ind) in surveys.data" :key="survey.id" :survey="survey" class="opacity-0 animate-fade-in-down"
         :style="{animationDelay: `${ind * 0.1}s`}"
-        @delete="deleteSurvey(survey)" />
+          @delete="deleteSurvey(survey)" />
       </div>
-        <!-- Pagination -->
+      <!-- Pagination -->
       <div class="flex justify-center mt-5">
         <nav
           class="relative z-0 inline-flex justify-center rounded-md shadow-sm -space-x-px"
@@ -39,7 +39,7 @@
         :key="i"
         :disabled="!link.url"
         @click="getForPage($event,link)"
-        aria-current="page"
+            aria-current="page"
         class="relative inline-flex items-center px-4 py-2 border text-sm font-medium whitespace-nowrap"
             :class="[
               link.active
@@ -52,10 +52,10 @@
         href="">
 
 
-        </a>
+          </a>
         </nav>
       </div>
-      </div>
+      <!-- </div> -->
     <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
       <SurveyListItem v-for="survey in surveys" :key="survey.id" :survey="survey" @delete="deleteSurvey(survey)" />
     </div>
