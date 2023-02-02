@@ -60,20 +60,20 @@ const store = createStore({
         commit('setUser', res.data)
       })
     },
-    // getDashboardData({commit}) {
-    //   commit('dashboardLoading', true)
-    //   return axiosClient.get(`/dashboard`)
-    //   .then((res) => {
-    //     commit('dashboardLoading', false)
-    //     commit('setDashboardData', res.data)
-    //     return res;
-    //   })
-    //   .catch(error => {
-    //     commit('dashboardLoading', false)
-    //     return error;
-    //   })
+    getDashboardData({commit}) {
+      commit('dashboardLoading', true)
+      return axiosClient.get(`/dashboard`)
+      .then((res) => {
+        commit('dashboardLoading', false)
+        commit('setDashboardData', res.data)
+        return res;
+      })
+      .catch(error => {
+        commit('dashboardLoading', false)
+        return error;
+      })
 
-    // },
+    },
     getSurveys({ commit }, {url = null} = {}) {
       commit('setSurveysLoading', true)
       url = url || "/survey";
@@ -176,6 +176,12 @@ const store = createStore({
       setTimeout(() => {
         state.notification.show = false;
       }, 3000);
+    },
+    dashboardLoading: (state, loading) => {
+      state.dashboard.loading = loading;
+    },
+    setDashboardData: (state, data) => {
+      state.dashboard.data = data
     },
   },
   modules: {},
