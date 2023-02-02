@@ -1,6 +1,4 @@
-/**
- * Created by Zura on 12/25/2021.
- */
+
 import axios from "axios";
 import store from "./store";
 

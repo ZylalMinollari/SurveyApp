@@ -201,7 +201,7 @@ function typeChange() {
 }
 
 function dataChange() {
-  const data = JSON.parse(JSON.stringify(model.value));
+  const data = model.value;
   if (!shouldHaveOptions()) {
     delete data.data.options;
   }
