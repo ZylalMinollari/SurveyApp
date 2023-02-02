@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\URL;
 use App\Http\Resources\SurveyQuestionResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class SurveyResource extends JsonResource
+class SurveyResourceDashboard extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -21,12 +21,11 @@ class SurveyResource extends JsonResource
             'image_url' => $this->image ? URL::to($this->image) : null,
             'title' => $this->title,
             'slug' => $this->slug,
-            'status' => $this->status !== 'draft',
-            'description' => $this->description,
+            'status' => !!$this->status,
             'expire_date' => (new \DateTime($this->expire_date))->format('Y-m-d H:i:s'),
             'created_at' => (new \DateTime($this->updated_at))->format('Y-m-d H:i:s'),
-            'updated_at' => (new \DateTime($this->updated_at))->format('Y-m-d H:i:s'),
-            'questions' => SurveyQuestionResource::collection($this->questions),
+            'questions' => $this->questions()->count(),
+            'answers' => $this->answers()->count()
         ];
     }
 }
