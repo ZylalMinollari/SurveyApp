@@ -5,32 +5,43 @@ const store = createStore({
   state: {
     user: {
       data: {},
-      token: sessionStorage.getItem('TOKEN'),
+      token: sessionStorage.getItem("TOKEN"),
+    },
+    dashboard: {
+      loading: false,
+      data: {}
+    },
+    surveys: {
+      loading: false,
+      links: [],
+      data: []
     },
     currentSurvey: {
       data: {},
       loading: false,
     },
-    surveys: {
-      loading: false,
-      links: [],
-      data: [],
-    },
-    questionTypes: ["text","select","radio","checkbox","textarea"],
+    questionTypes: ["text", "select", "radio", "checkbox", "textarea"],
+    notification: {
+      show: false,
+      type: null,
+      message: null,
+    }
   },
   getters: {},
   actions: {
     register({commit}, user) {
       return axiosClient.post('/register', user)
         .then(({data}) => {
-          commit('setUser', data);
+          commit('setUser', data.user);
+          commit('setToken', data.token)
           return data;
         })
     },
     login({commit}, user) {
       return axiosClient.post('/login', user)
         .then(({data}) => {
-          commit('setUser', data);
+          commit('setUser', data.user);
+          commit('setToken', data.token)
           return data;
         })
     },
@@ -39,53 +50,40 @@ const store = createStore({
       return axiosClient.post('/logout')
         .then(response => {
           commit('logout')
-          return response
+          return response;
         })
     },
-
-    saveSurvey({commit},survey) {
-      delete survey.image_url
-      let response;
-      if(survey.id) {
-        response = axiosClient.put(`/survey/${survey.id}`,survey)
-        .then((res)=> {
-          commit("setCurrentSurvey", res.data);
-          return res;
-        });
-      } else {
-          response = axiosClient.post("/survey",survey).then((res)=>{
-            commit("setCurrentSurvey",res.data)
-          });
-      }
-      return response;
+    getUser({commit}) {
+      return axiosClient.get('/user')
+      .then(res => {
+        console.log(res);
+        commit('setUser', res.data)
+      })
     },
-    getSurveys({ commit }) {
+    // getDashboardData({commit}) {
+    //   commit('dashboardLoading', true)
+    //   return axiosClient.get(`/dashboard`)
+    //   .then((res) => {
+    //     commit('dashboardLoading', false)
+    //     commit('setDashboardData', res.data)
+    //     return res;
+    //   })
+    //   .catch(error => {
+    //     commit('dashboardLoading', false)
+    //     return error;
+    //   })
+
+    // },
+    getSurveys({ commit }, {url = null} = {}) {
       commit('setSurveysLoading', true)
-      return axiosClient.get("/survey").then((res) => {
+      url = url || "/survey";
+      return axiosClient.get(url).then((res) => {
         commit('setSurveysLoading', false)
         commit("setSurveys", res.data);
         return res;
       });
     },
-    getSurveyBySlug({commit},slug) {
-      commit("setCurrentSurveyLoading", true);
-      return axiosClient
-      .get(`/survey-by-slug/${slug}`)
-      .then((res) => {
-        commit("setCurrentSurvey", res.data);
-        commit("setCurrentSurveyLoading", false);
-        return res;
-      })
-      .catch((err) => {
-        commit("setCurrentSurveyLoading", false);
-        throw err;
-      });
-    },
-
-    deleteSurvey({ }, id) {
-      return axiosClient.delete(`/survey/${id}`);
-    },
-    getSurvey({commit},id) {
+    getSurvey({ commit }, id) {
       commit("setCurrentSurveyLoading", true);
       return axiosClient
         .get(`/survey/${id}`)
@@ -99,7 +97,46 @@ const store = createStore({
           throw err;
         });
     },
+    getSurveyBySlug({ commit }, slug) {
+      commit("setCurrentSurveyLoading", true);
+      return axiosClient
+        .get(`/survey-by-slug/${slug}`)
+        .then((res) => {
+          commit("setCurrentSurvey", res.data);
+          commit("setCurrentSurveyLoading", false);
+          return res;
+        })
+        .catch((err) => {
+          commit("setCurrentSurveyLoading", false);
+          throw err;
+        });
+    },
+    saveSurvey({ commit, dispatch }, survey) {
+      delete survey.image_url;
 
+      let response;
+      if (survey.id) {
+        response = axiosClient
+          .put(`/survey/${survey.id}`, survey)
+          .then((res) => {
+            commit('setCurrentSurvey', res.data)
+            return res;
+          });
+      } else {
+        response = axiosClient.post("/survey", survey).then((res) => {
+          commit('setCurrentSurvey', res.data)
+          return res;
+        });
+      }
+
+      return response;
+    },
+    deleteSurvey({ dispatch }, id) {
+      return axiosClient.delete(`/survey/${id}`).then((res) => {
+        dispatch('getSurveys')
+        return res;
+      });
+    },
     saveSurveyAnswer({commit}, {surveyId, answers}) {
       return axiosClient.post(`/survey/${surveyId}/answer`, {answers});
     },
@@ -108,36 +145,37 @@ const store = createStore({
     logout: (state) => {
       state.user.token = null;
       state.user.data = {};
-      sessionStorage.removeItem('TOKEN');
+      sessionStorage.removeItem("TOKEN");
     },
-    setUser: (state, userData) => {
-      state.user.token = userData.token;
-      state.user.data = userData.user;
-      sessionStorage.setItem('TOKEN', userData.token);
-    },
-    // saveSurvey: (state,survey) => {
-    //     state.surveys = [...state.surveys,survey.data];
-    // },
-    // updateSurvey: (state,survey) => {
-    //   state.surveys =  state.surveys.map((s) => {
-    //     if(s.id == survey.data.id) {
-    //       return survey.data;
-    //     }
-    //     return s;
-    //   });
-    // }, //setSurveysLoading
 
-    setCurrentSurveyLoading: (state, loading) => {
-      state.currentSurvey.loading = loading;
+    setUser: (state, user) => {
+      state.user.data = user;
     },
+    setToken: (state, token) => {
+      state.user.token = token;
+      sessionStorage.setItem('TOKEN', token);
+    },
+
     setSurveysLoading: (state, loading) => {
       state.surveys.loading = loading;
+    },
+    setSurveys: (state, surveys) => {
+      state.surveys.links = surveys.meta.links;
+      state.surveys.data = surveys.data;
+    },
+    setCurrentSurveyLoading: (state, loading) => {
+      state.currentSurvey.loading = loading;
     },
     setCurrentSurvey: (state, survey) => {
       state.currentSurvey.data = survey.data;
     },
-    seSurveys: (state, surveys) => {
-      state.surveys.data = surveys.data;
+    notify: (state, {message, type}) => {
+      state.notification.show = true;
+      state.notification.type = type;
+      state.notification.message = message;
+      setTimeout(() => {
+        state.notification.show = false;
+      }, 3000);
     },
   },
   modules: {},

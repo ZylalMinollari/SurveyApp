@@ -67,7 +67,7 @@ const emits = defineEmits(["update:modelValue"]);
 
 let model;
 if (question.type === "checkbox") {
-  model.ref({});
+  model = ref({});
 }
 
 function shouldHaveOptions() {
